@@ -2,3 +2,5 @@ target/
 tmp/
 logs/
 config.edn
+.lein-repl-history
+.nrepl-port

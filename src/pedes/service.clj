@@ -13,7 +13,7 @@
 
 (defn home-page
   [request]
-  (ring-resp/response "Hello World!"))
+  (ring-resp/response "Hello dog!"))
 
 (defroutes routes
   ;; Defines "/" and "/about" routes with their associated :get handlers.
