@@ -3,7 +3,8 @@
             [io.pedestal.http.route :as route]
             [io.pedestal.http.body-params :as body-params]
             [io.pedestal.http.route.definition :refer [defroutes]]
-            [ring.util.response :as ring-resp]))
+            [ring.util.response :as ring-resp]
+            [ring.handler.dump :refer [handle-dump]]))
 
 (defn about-page
   [request]
@@ -13,15 +14,16 @@
 
 (defn home-page
   [request]
-  (ring-resp/response "Hello dog!"))
+  (ring-resp/response (str "Hello berok!" (:params request))))
 
 (defroutes routes
   ;; Defines "/" and "/about" routes with their associated :get handlers.
   ;; The interceptors defined after the verb map (e.g., {:get home-page}
   ;; apply to / and its children (/about).
   [[["/" {:get home-page}
-     ^:interceptors [(body-params/body-params) bootstrap/html-body]
-     ["/about" {:get about-page}]]]])
+     ;^:interceptors [(body-params/body-params) bootstrap/html-body]
+     ["/about" {:get about-page}]
+     ["/req" {:any handle-dump}]]]])
 
 ;; Consumed by pedes.server/create-server
 ;; See bootstrap/default-interceptors for additional options you can configure
