@@ -1,7 +1,8 @@
 (ns pedes.server
   (:gen-class) ; for -main method in uberjar
   (:require [io.pedestal.http :as server]
-            [pedes.service :as service]))
+            [pedes.service :as service]
+            [io.pedestal.test :refer [response-for]]))
 
 ;; This is an adapted service map, that can be started and stopped
 ;; From the REPL you can call server/start and server/stop on this service
