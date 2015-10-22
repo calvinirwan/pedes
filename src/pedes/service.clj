@@ -6,7 +6,9 @@
             [io.pedestal.interceptor :refer [interceptor]]
             [ring.util.response :as ring-resp]
             [ring.handler.dump :refer [handle-dump]]
-            [io.pedestal.http.ring-middlewares :as middlewares]))
+            [io.pedestal.http.ring-middlewares :as middlewares]
+            [io.pedestal.test :as ptest]
+            [clj-http.client :as cl]))
 
 (defn about-page
   [request]
@@ -21,7 +23,14 @@
 (def nuthin
   (interceptor
    {:name :nuthin
-   :enter (fn [ctx] (assoc ctx :response (ring-resp/response (:request ctx))))}))
+    :enter (fn [ctx]
+             (assoc ctx :response
+                    (ring-resp/response (str (:keys (:body (:request ctx)))))))}))
+
+(def sumthin
+  (interceptor
+   {:name :sumthin
+    :enter (fn [ctx] (assoc ctx :response (ring-resp/response ctx)))}))
 
 (defroutes routes
   ;; Defines "/" and "/about" routes with their associated :get handlers.
@@ -29,12 +38,12 @@
   ;; apply to / and its children (/about).
   [[["/" ^:interceptors [
                          (body-params/body-params)
-                         (middlewares/params)
-                         bootstrap/html-body]
+                         (middlewares/params)]
      {:get home-page}
      ;^:interceptors [(body-params/body-params) bootstrap/html-body]
      ["/about" {:get about-page}]
-     ["/req" {:any nuthin}]]]])
+     ["/req" {:any nuthin}]
+     ["/ctx" {:any sumthin}]]]])
 
 ;; Consumed by pedes.server/create-server
 ;; See bootstrap/default-interceptors for additional options you can configure
@@ -61,4 +70,11 @@
               ::bootstrap/type :jetty
               ;;::bootstrap/host "localhost"
               ::bootstrap/port 8080})
+
+(def sagat
+  (::bootstrap/service-fn (bootstrap/create-servlet service)))
+
+(defn tiger
+  []
+  (ptest/response-for sagat :get "/hello"))
 
