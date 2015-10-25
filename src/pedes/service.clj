@@ -25,7 +25,7 @@
    {:name :nuthin
     :enter (fn [ctx]
              (assoc ctx :response
-                    (ring-resp/response (str (:keys (:body (:request ctx)))))))}))
+                    (ring-resp/response (:request ctx))))}))
 
 (def sumthin
   (interceptor
@@ -74,7 +74,15 @@
 (def sagat
   (::bootstrap/service-fn (bootstrap/create-servlet service)))
 
+(def b
+  "{\"json\": \"input\"}"
+  #_"{:ninja \"tiger\"}")
+
+(def h
+  {"Content-Type" "application/json"
+   "Accept" "application/json"})
+
 (defn tiger
   []
-  (ptest/response-for sagat :get "/hello"))
+  (:body (ptest/response-for sagat :post "/req" :body b :headers h)))
 
