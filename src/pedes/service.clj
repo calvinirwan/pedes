@@ -8,7 +8,9 @@
             [ring.handler.dump :refer [handle-dump]]
             [io.pedestal.http.ring-middlewares :as middlewares]
             [io.pedestal.test :as ptest]
-            [clj-http.client :as cl]))
+            [io.pedestal.http.csrf :as csrf] 
+            [clj-http.client :as cl]
+            [clj-http.cookies :refer [cookie-store]]))
 
 (defn about-page
   [request]
@@ -32,11 +34,20 @@
    {:name :sumthin
     :enter (fn [ctx] (assoc ctx :response (ring-resp/response ctx)))}))
 
+(def csrf-hack
+  (interceptor
+   {:name ::csrf-hack
+    :enter (fn [ctx]
+             (let [context (-> ctx
+                               (assoc-in [:request :headers "x-csrf-token"] "anjing" )
+                               (assoc-in [:request :session "__anti-forgery-token"] "anjing" ))]
+               context))}))
+
 (defroutes routes
   ;; Defines "/" and "/about" routes with their associated :get handlers.
   ;; The interceptors defined after the verb map (e.g., {:get home-page}
   ;; apply to / and its children (/about).
-  [[["/" ^:interceptors [
+  [[["/" ^:interceptors [(csrf/anti-forgery)
                          (body-params/body-params)
                          (middlewares/params)]
      {:get home-page}
@@ -67,6 +78,8 @@
               ::bootstrap/resource-path "/public"
 
               ;; Either :jetty, :immutant or :tomcat (see comments in project.clj)
+              ::bootstrap/enable-csrf {}
+              ::bootstrap/enable-session {}
               ::bootstrap/type :jetty
               ;;::bootstrap/host "localhost"
               ::bootstrap/port 8080})
@@ -86,3 +99,22 @@
   []
   (:body (ptest/response-for sagat :post "/req" :body b :headers h)))
 
+(defn macaca
+  []
+  (let [kue (cookie-store)
+        r1 (cl/get "http://localhost:8080/req"
+                   {:throw-exceptions false
+                    :cookie-store kue})
+        token-regex (str "name=\"__anti-forgery-token\" "
+                           "type=\"hidden\" value=\"(.+?)\"")
+        token (-> token-regex
+                  re-pattern
+                  (re-find (:body r1))
+                  second)
+        r2 (cl/post
+              "http://localhost:8080/req"
+              {:headers {"X-CSRF-Token" token}
+               :form-params {:foo "bar"}
+               :throw-exceptions false
+               :cookie-store kue})]
+    r2))
