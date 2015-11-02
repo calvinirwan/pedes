@@ -3,8 +3,8 @@
             [clojure.core.async :refer [chan <! <!! >! >!!
                                         put! take!
                                         go go-loop
-                                        split mult
-                                        pipe] :as async]))
+                                        split mult tap pipe
+                                        dropping-buffer] :as async]))
 
 (defn a [] (load "component"))
 
@@ -69,10 +69,25 @@
   [ichan ochan]
   (let [m (mult ichan)
         log (chan (dropping-buffer 100))]
-    (tap m output)
+    (tap m ochan)
     (tap m log)
     log))
 
+(defrecord MailMachine
+    [ichan ochan active])
+
+(defn make-mail-machine
+  [ichan ochan]
+  (map->MailMachine {:ichan ichan
+                     :ochan ochan
+                     :active (atom false)}))
+
+(defn tiger-mail
+  []
+  (go-loop []
+    (let [x (<! a)
+          y (inc x)]
+      (>! b y)
+      (recur))))
+
 (def macaca "sukajadi")
-
-
