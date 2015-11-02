@@ -18,7 +18,8 @@
                  [org.slf4j/log4j-over-slf4j "1.7.7"]
                  [ring/ring-devel "1.4.0"]
                  [clj-http "2.0.0"]
-                 [com.stuartsierra/component "0.3.0"]]
+                 [com.stuartsierra/component "0.3.0"]
+                 [org.clojure/core.async "0.2.371"]]
   :min-lein-version "2.0.0"
   :resource-paths ["config", "resources"]
   :profiles {:dev {:aliases {"run-dev" ["trampoline" "run" "-m" "pedes.server/run-dev"]}

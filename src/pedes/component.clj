@@ -1,5 +1,10 @@
 (ns pedes.component
-  (:require [com.stuartsierra.component :as component]))
+  (:require [com.stuartsierra.component :as component]
+            [clojure.core.async :refer [chan <! <!! >! >!!
+                                        put! take!
+                                        go go-loop
+                                        split mult
+                                        pipe] :as async]))
 
 (defn a [] (load "component"))
 
@@ -48,5 +53,26 @@
 
 (defmulti cost (fn [entity store] (class entity)))
 
+(def a (chan 2))
+(def b (chan 2))
+(def c (chan 2))
+
+(defn piping
+  [ichan ochan]
+  (pipe ichan ochan))
+
+(defn splitting
+  [f ichan tchan fchan]
+  (split f ichan tchan fchan))
+
+(defn logging
+  [ichan ochan]
+  (let [m (mult ichan)
+        log (chan (dropping-buffer 100))]
+    (tap m output)
+    (tap m log)
+    log))
 
 (def macaca "sukajadi")
+
+
