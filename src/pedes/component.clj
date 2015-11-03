@@ -82,12 +82,19 @@
                      :ochan ochan
                      :active (atom false)}))
 
-(defn tiger-mail
-  []
-  (go-loop []
-    (let [x (<! a)
-          y (inc x)]
-      (>! b y)
-      (recur))))
+(defn start-mail-machine
+  [{:keys [ichan ochan active] :as mail}]
+  (reset! active true)
+  (go-loop [request (<! ichan)]
+      (>! ochan (inc request))
+      (take! ochan (fn [b] (println (str "this is" b))))
+      (when @active (recur (<! ichan))))
+  mail)
+
+(defn stop-mail-machine
+  [{:keys [ochan active] :as mail}]
+  (reset! active false)
+  (async/close! ochan)
+  mail)
 
 (def macaca "sukajadi")
