@@ -4,7 +4,8 @@
                                         put! take!
                                         go go-loop
                                         split mult tap pipe
-                                        dropping-buffer] :as async]))
+                                        dropping-buffer] :as async]
+            [clojure.core.reducers :as r]))
 
 (defn a [] (load "component"))
 
@@ -98,3 +99,24 @@
   mail)
 
 (def macaca "sukajadi")
+
+(def xform (comp (map inc) (map inc) (map dec)))
+
+#_(time (transduce xform + (range 10000000)))
+
+#_(time (r/reduce + (r/map inc (r/map inc (r/map dec (range 10000000))))))
+
+#_(time (reduce + (map inc (map inc (map dec (range 10000000))))))
+
+(defn a [x]
+  (println "A:" x)
+  x)
+
+(defn b [x]
+  (println "B:" x)
+  x)
+
+(defn c [x]
+  (println "C:" x)
+  x)
+
