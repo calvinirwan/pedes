@@ -82,7 +82,7 @@
               ::bootstrap/enable-session {}
               ::bootstrap/type :jetty
               ;;::bootstrap/host "localhost"
-              ::bootstrap/port 8080})
+              ::bootstrap/port 3000})
 
 (def sagat
   (::bootstrap/service-fn (bootstrap/create-servlet service)))
@@ -102,7 +102,7 @@
 (defn macaca
   []
   (let [kue (cookie-store)
-        r1 (cl/get "http://localhost:8080/req"
+        r1 (cl/get "http://localhost:3000/req"
                    {:throw-exceptions false
                     :cookie-store kue})
         token-regex (str "name=\"__anti-forgery-token\" "
@@ -112,7 +112,7 @@
                   (re-find (:body r1))
                   second)
         r2 (cl/post
-              "http://localhost:8080/req"
+              "http://localhost:3000/req"
               {:headers {"X-CSRF-Token" token}
                :form-params {:foo "bar"}
                :throw-exceptions false

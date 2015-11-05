@@ -1,6 +1,7 @@
 (ns pedes.server
   (:gen-class) ; for -main method in uberjar
-  (:require [io.pedestal.http :as server]
+  (:require [com.stuartsierra.component :as component]
+            [io.pedestal.http :as server]
             [pedes.service :as service]
             [clojure.tools.namespace.repl :refer [refresh refresh-all]]))
 
@@ -29,6 +30,16 @@
   []
   (server/stop runnable-service)
   (refresh :after 'pedes.server/go))
+
+(defrecord WebServer [service]
+  component/Lifecycle
+  (start [this]
+         (server/start service))
+  (stop [this]
+        (server/stop service)))
+
+(defn make-web-server []
+  (map->WebServer {:service runnable-service}))
 
 (defn run-dev
   "The entry-point for 'lein run-dev'"
