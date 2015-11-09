@@ -2,10 +2,26 @@
   (:require [clojure.test :refer :all]
             [io.pedestal.test :refer :all]
             [io.pedestal.http :as bootstrap]
-            [pedes.service :as service]))
+            [pedes.service :as service]
+            [io.pedestal.test :as ptest]))
 
 (def service
   (::bootstrap/service-fn (bootstrap/create-servlet service/service)))
+
+(def sagat
+  (::bootstrap/service-fn (bootstrap/create-servlet service/service)))
+
+(def b
+  "{\"json\": \"input\"}"
+  #_"{:ninja \"tiger\"}")
+
+(def h
+  {"Content-Type" "application/json"
+   "Accept" "application/json"})
+
+(defn tiger
+  []
+  (:body (ptest/response-for sagat :post "/req" :body b :headers h)))
 
 #_(deftest home-page-test
   (is (=

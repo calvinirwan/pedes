@@ -3,6 +3,7 @@
   (:require [com.stuartsierra.component :as component]
             [io.pedestal.http :as server]
             [pedes.service :as service]
+            [pedes.routes :as routes]
             [clojure.tools.namespace.repl :refer [refresh refresh-all]]))
 
 ;; This is an adapted service map, that can be started and stopped
@@ -14,7 +15,7 @@
               ::server/join? false
               ;; Routes can be a function that resolve routes,
               ;;  we can use this to set the routes to be reloadable
-              ::server/routes #(deref #'service/routes)
+              ::server/routes #(deref #'routes/routes)
               ;; all origins are allowed in dev mode
               ::server/allowed-origins {:creds true :allowed-origins (constantly true)}})
       ;; Wire up interceptor chains
@@ -25,6 +26,7 @@
 (defn go
   []
   (server/start runnable-service))
+
 
 (defn reset
   []
@@ -51,7 +53,7 @@
               ::server/join? false
               ;; Routes can be a function that resolve routes,
               ;;  we can use this to set the routes to be reloadable
-              ::server/routes #(deref #'service/routes)
+              ::server/routes #(deref #'routes/routes)
               ;; all origins are allowed in dev mode
               ::server/allowed-origins {:creds true :allowed-origins (constantly true)}})
       ;; Wire up interceptor chains

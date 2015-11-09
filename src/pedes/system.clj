@@ -1,15 +1,16 @@
 (ns pedes.system
-  (:require [com.stuartsierra.component :as component]
+  (:require [clojure.tools.namespace.repl :refer [refresh refresh-all]]
+            [com.stuartsierra.component :as component]
             [pedes.datomic :as datomic]
             [pedes.server :as server]
-            [clojure.tools.namespace.repl :refer [refresh refresh-all]]))
+            ))
 
 (def conf (read-string (slurp "config.edn")))
 
 (defn init-system
   [conf]
   (component/system-map
-   :datomic (datomic/make-datomic (:uri (:datomic conf)))
+   ;:datomic (datomic/make-datomic (:uri (:datomic conf)))
    :web-server (server/make-web-server)))
 
 (def dev-system nil)
