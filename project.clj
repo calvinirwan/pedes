@@ -27,5 +27,6 @@
                    :dependencies [[io.pedestal/pedestal.service-tools "0.4.0"]]}
              :uberjar {:aot [pedes.server]}}
   :aliases {"go" ["with-profiles" "dev,calvin" "repl"]}
+  :repl-options {:init-ns pedes.system}
   :main ^{:skip-aot true} pedes.server)
 

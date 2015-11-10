@@ -2,6 +2,7 @@
   (:require [clojure.tools.namespace.repl :refer [refresh refresh-all]]
             [com.stuartsierra.component :as component]
             [pedes.datomic :as datomic]
+            [pedes.mail :as mail]
             [pedes.server :as server]
             ))
 
@@ -11,7 +12,8 @@
   [conf]
   (component/system-map
    ;:datomic (datomic/make-datomic (:uri (:datomic conf)))
-   :web-server (server/make-web-server)))
+   :web-server (server/make-web-server)
+   :mail (mail/make-mail)))
 
 (def dev-system nil)
 
