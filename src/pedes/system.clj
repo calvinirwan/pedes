@@ -3,6 +3,7 @@
             [com.stuartsierra.component :as component]
             [pedes.datomic :as datomic]
             [pedes.mail :as mail]
+            [pedes.routes :as routes]
             [pedes.server :as server]
             ))
 
@@ -12,8 +13,9 @@
   [conf]
   (component/system-map
    ;:datomic (datomic/make-datomic (:uri (:datomic conf)))
+   :mail (mail/make-mail)
    :web-server (server/make-web-server)
-   :mail (mail/make-mail)))
+   :routes (routes/make-routes)))
 
 (def dev-system nil)
 

@@ -2,7 +2,7 @@
   (:require [io.pedestal.http :as bootstrap]
             [io.pedestal.http.route :as route]
             [io.pedestal.http.body-params :as body-params]
-            [io.pedestal.http.route.definition :refer [defroutes]]
+            [io.pedestal.http.route.definition :refer [defroutes expand-routes]]
             [io.pedestal.interceptor :refer [interceptor]]
             [io.pedestal.http.ring-middlewares :as middlewares]
             [io.pedestal.test :as ptest]
@@ -12,7 +12,8 @@
             [pedes.interceptor :refer [nuthin sumthin csrf-hack
                                        home-page about-page]]))
 
-(defroutes routes
+(defn routes
+  []
   ;; Defines "/" and "/about" routes with their associated :get handlers.
   ;; The interceptors defined after the verb map (e.g., {:get home-page}
   ;; apply to / and its children (/about).
@@ -24,3 +25,19 @@
      ["/about" {:get about-page}]
      ["/req" {:any nuthin}]
      ["/ctx" {:any sumthin}]]]])
+
+(defn make-routes
+  []
+  (expand-routes (routes)))
+
+(defrecord RoutesMap [routes mail]
+  component/Lifecycle
+  (start [this]
+    (let [routes (make-routes)]
+      (assoc this :routes routes)))
+  (stop [component]
+    (dissoc component :routes)))
+
+(defn make-routes-map
+  []
+  (map->RoutesMap {}))
