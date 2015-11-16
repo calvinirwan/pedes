@@ -8,32 +8,26 @@
 
 (def nuthin
   (interceptor
-   {:name :nuthin
+   {:name ::nuthin
     :enter (fn [ctx]
-             (assoc ctx :response
-                    (ring-resp/response (:request ctx))))}))
+             (assoc ctx :response (handle-dump ctx)))}))
 
 (def sumthin
   (interceptor
-   {:name :sumthin
-    :enter (fn [ctx] (assoc ctx :response (ring-resp/response ctx)))}))
+   {:name ::sumthin
+    :enter (fn [ctx] (assoc ctx :response (handle-dump ctx)))}))
 
-(def csrf-hack
+(def intereq
   (interceptor
-   {:name ::csrf-hack
+   {:name ::intereq
     :enter (fn [ctx]
-             (let [context (-> ctx
-                               (assoc-in [:request :headers "x-csrf-token"] "anjing" )
-                               (assoc-in [:request :session "__anti-forgery-token"] "anjing" ))]
-               context))}))
+             (assoc ctx :response
+                    (ring-resp/response (str (:request ctx)))))}))
 
-
-(defn about-page
-  [request]
-  (ring-resp/response (format "Clojure %s - served from %s"
-                              (clojure-version)
-                              (route/url-for ::about-page))))
-
-(defn home-page
-  [request]
-  (ring-resp/response (str "Hello berok!" (:params request))))
+(defn mail-interceptor
+  [mail]
+  (interceptor
+   {:name ::mail-interceptor
+    :enter 
+    (fn [ctx]
+      (assoc ctx :mail mail))}))

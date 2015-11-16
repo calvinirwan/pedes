@@ -11,8 +11,7 @@
             [io.pedestal.test :as ptest]
             [io.pedestal.http.csrf :as csrf] 
             [clj-http.client :as cl]
-            [clj-http.cookies :refer [cookie-store]]
-            [pedes.routes :refer [routes]]))
+            [clj-http.cookies :refer [cookie-store]]))
 
 ;; Consumed by pedes.server/create-server
 ;; See bootstrap/default-interceptors for additional options you can configure
