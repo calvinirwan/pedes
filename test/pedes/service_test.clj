@@ -5,10 +5,10 @@
             [pedes.service :as service]
             [io.pedestal.test :as ptest]))
 
-(def service
+#_(def service
   (::bootstrap/service-fn (bootstrap/create-servlet service/service)))
 
-(def sagat
+#_(def sagat
   (::bootstrap/service-fn (bootstrap/create-servlet service/service)))
 
 (def b
@@ -19,7 +19,7 @@
   {"Content-Type" "application/json"
    "Accept" "application/json"})
 
-(defn tiger
+#_(defn tiger
   []
   (:body (ptest/response-for sagat :post "/req" :body b :headers h)))
 

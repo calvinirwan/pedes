@@ -33,15 +33,33 @@
   (server/stop runnable-service)
   (refresh :after 'pedes.server/go))
 
-(defrecord WebServer [service]
+(defrecord WebServer [server service]
   component/Lifecycle
   (start [this]
-         (server/start service))
+         (if server
+           (do
+             (println "server udah nyala baoss... lo mau ngerusak ??")
+             this)
+           (let [server (-> (:service-data service)
+                            server/default-interceptors
+                            server/dev-interceptors
+                            server/create-server)]
+             (do
+               (server/start server)
+               (-> this
+                   (assoc :server server))))))
   (stop [this]
-        (server/stop service)))
+        (if-not server
+          (do
+            (println "server nya udah mateeeeee")
+            this)
+          (do
+            (server/stop server)
+            (-> this
+                (assoc :server nil))))))
 
 (defn make-web-server []
-  (map->WebServer {:service runnable-service}))
+  (map->WebServer {}))
 
 (defn run-dev
   "The entry-point for 'lein run-dev'"

@@ -1,5 +1,6 @@
 (ns pedes.routes
-  (:require [io.pedestal.http :as bootstrap]
+  (:require [com.stuartsierra.component :as component]
+            [io.pedestal.http :as bootstrap]
             [io.pedestal.http.route :as route]
             [io.pedestal.http.body-params :as body-params]
             [io.pedestal.http.route.definition :refer [defroutes expand-routes]]
@@ -20,9 +21,6 @@
   [[["/" ^:interceptors [(csrf/anti-forgery)
                          (body-params/body-params)
                          (middlewares/params)]
-     {:get home-page}
-     ;^:interceptors [(body-params/body-params) bootstrap/html-body]
-     ["/about" {:get about-page}]
      ["/req" {:any nuthin}]
      ["/ctx" {:any sumthin}]]]])
 

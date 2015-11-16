@@ -5,7 +5,7 @@
             [pedes.mail :as mail]
             [pedes.routes :as routes]
             [pedes.server :as server]
-            ))
+            [pedes.service :as service]))
 
 (def conf (read-string (slurp "config.edn")))
 
@@ -14,8 +14,16 @@
   (component/system-map
    ;:datomic (datomic/make-datomic (:uri (:datomic conf)))
    :mail (mail/make-mail)
-   :web-server (server/make-web-server)
-   :routes (routes/make-routes)))
+   :routes (component/using
+            (routes/make-routes-map)
+            [:mail])
+   :service (component/using
+             (service/make-service-map)
+             [:routes])
+   :web-server (component/using
+                (server/make-web-server)
+                [:service])
+   ))
 
 (def dev-system nil)
 
