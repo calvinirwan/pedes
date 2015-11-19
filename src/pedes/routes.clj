@@ -26,22 +26,23 @@
                      (body-params/body-params)
                      (middlewares/params)]
      {:any hello}
-     ;["/a" {:any intereq}]            
-                                        ;["/ctx" {:any interctx}]
-     ]]])
+     ["/a" {:any intereq}]            
+     ["/ctx" {:any interctx}]
+     ]
+]])
 
-#_(defn hello-world [req] {:status 200 :body "Hello World!"})
-#_(defn macaca [req]
-  {:status 200 :body "ratata"})
+;; #_(defn hello-world [req] {:status 200 :body "Hello World!"})
+;; #_(defn macaca [req]
+;;   {:status 200 :body "ratata"})
 
-#_(def route-table
-  (expand-routes '[[["/" ^:interceptors
-                     [(csrf/anti-forgery)
-                      (body-params/body-params)
-                      (middlewares/params)
-                      nuthin]
-                     {:any macaca}
-                     ["/hello-world" {:any hello-world}]]]]))
+;; #_(def route-table
+;;   (expand-routes '[[["/" ^:interceptors
+;;                      [(csrf/anti-forgery)
+;;                       (body-params/body-params)
+;;                       (middlewares/params)
+;;                       nuthin]
+;;                      {:any macaca}
+;;                      ["/hello-world" {:any hello-world}]]]]))
 
 (defn make-routes
   [mail]

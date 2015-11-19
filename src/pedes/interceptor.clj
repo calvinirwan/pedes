@@ -19,7 +19,7 @@
 
 (def interctx
   (interceptor
-   {:name ::intereq
+   {:name ::interctx
     :enter (fn [ctx]
              (assoc ctx :response
                     (ring-resp/response (str ctx))))}))
@@ -32,7 +32,7 @@
 
 (def hello
   (interceptor
-   {:name ::intereq
+   {:name ::hello
     :enter (fn [ctx]
              (assoc ctx :response
                     (ring-resp/response (str "hello world"))))}))
