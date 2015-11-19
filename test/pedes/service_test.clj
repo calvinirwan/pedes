@@ -2,8 +2,22 @@
   (:require [clojure.test :refer :all]
             [io.pedestal.test :refer :all]
             [io.pedestal.http :as bootstrap]
-            [pedes.service :as service]
+            [pedes.system :as system]
             [io.pedestal.test :as ptest]))
+(system/reset)
+(deftest system-check
+  (let [dev system/dev-system]
+    (is (= 4 (count (keys dev))))))
+
+
+(deftest tiger-knee
+  (is (= 2 2)))
+
+(deftest tiger-uppercut
+  (is 2))
+
+(deftest tiger-undercut
+  (is (= 2 2)))
 
 #_(def service
   (::bootstrap/service-fn (bootstrap/create-servlet service/service)))

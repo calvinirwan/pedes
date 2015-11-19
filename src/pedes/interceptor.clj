@@ -17,6 +17,12 @@
    {:name ::sumthin
     :enter (fn [ctx] (assoc ctx :response (handle-dump ctx)))}))
 
+(def interctx
+  (interceptor
+   {:name ::intereq
+    :enter (fn [ctx]
+             (assoc ctx :response
+                    (ring-resp/response (str ctx))))}))
 (def intereq
   (interceptor
    {:name ::intereq

@@ -12,21 +12,22 @@
             [clj-http.client :as cl]
             [clj-http.cookies :refer [cookie-store]]
             [pedes.interceptor :refer [nuthin sumthin
-                                       intereq mail-interceptor]]))
+                                       intereq interctx
+                                       mail-interceptor]]))
 
 (defn routes
   [mail]
   ;; Defines "/" and "/about" routes with their associated :get handlers.
   ;; The interceptors defined after the verb map (e.g., {:get home-page}
   ;; apply to / and its children (/about).
-  [[["/" ^:interceptors [(csrf/anti-forgery)
-                         (mail-interceptor mail)
-                         (body-params/body-params)
-                         (middlewares/params)]
+  [[["/"
+     ^:interceptors [(csrf/anti-forgery)
+                     (mail-interceptor mail)
+                     (body-params/body-params)
+                     (middlewares/params)]
      {:any nuthin}
-     ;["/req" {:any nuthin}]
-     ["/ctx" {:any intereq}]
-     ]]])
+     ;["/req" {:any intereq}]            
+     ["/ctx" {:any interctx}]]]])
 
 #_(defn hello-world [req] {:status 200 :body "Hello World!"})
 #_(defn macaca [req]
