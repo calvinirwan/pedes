@@ -111,4 +111,4 @@
         hand (system->ring-handler dev)]
     (-> (session hand)
         (visit "/")
-        (has (text? "hello")))))
+        (has (text? "hello world")))))
