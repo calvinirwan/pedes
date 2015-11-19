@@ -11,7 +11,7 @@
             [ring.util.response :as ring-resp]
             [clj-http.client :as cl]
             [clj-http.cookies :refer [cookie-store]]
-            [pedes.interceptor :refer [nuthin sumthin
+            [pedes.interceptor :refer [nuthin sumthin hello
                                        intereq interctx
                                        mail-interceptor]]))
 
@@ -25,9 +25,10 @@
                      (mail-interceptor mail)
                      (body-params/body-params)
                      (middlewares/params)]
-     {:any nuthin}
-     ;["/req" {:any intereq}]            
-     ["/ctx" {:any interctx}]]]])
+     {:any hello}
+     ;["/a" {:any intereq}]            
+                                        ;["/ctx" {:any interctx}]
+     ]]])
 
 #_(defn hello-world [req] {:status 200 :body "Hello World!"})
 #_(defn macaca [req]

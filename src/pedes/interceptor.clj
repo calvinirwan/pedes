@@ -30,6 +30,14 @@
              (assoc ctx :response
                     (ring-resp/response (str (:request ctx)))))}))
 
+(def hello
+  (interceptor
+   {:name ::intereq
+    :enter (fn [ctx]
+             (assoc ctx :response
+                    (ring-resp/response (str "hello world"))))}))
+
+
 (defn mail-interceptor
   [mail]
   (interceptor
