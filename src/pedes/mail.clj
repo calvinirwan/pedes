@@ -41,7 +41,8 @@
                (>!! log-ch ex)
                :error)]
       (-> this
-          (assoc :pipeline (pipeline 4 (map inc) true ex)))))
+          (assoc :pipeline (pipeline 4 out-ch (map inc) in-ch true ex))))
+    this)
   (stop [{:keys [in-ch out-ch log-ch] :as this}]
     (async/close! in-ch)
     (async/close! out-ch)
