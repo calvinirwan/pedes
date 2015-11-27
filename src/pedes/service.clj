@@ -1,5 +1,6 @@
 (ns pedes.service
-  (:require [io.pedestal.http :as bootstrap]
+  (:require [com.stuartsierra.component :as component]
+            [io.pedestal.http :as bootstrap]
             [io.pedestal.http.route :as route]
             [io.pedestal.http.body-params :as body-params]
             [io.pedestal.http.route.definition :refer [defroutes]]
@@ -12,50 +13,6 @@
             [clj-http.client :as cl]
             [clj-http.cookies :refer [cookie-store]]))
 
-(defn about-page
-  [request]
-  (ring-resp/response (format "Clojure %s - served from %s"
-                              (clojure-version)
-                              (route/url-for ::about-page))))
-
-(defn home-page
-  [request]
-  (ring-resp/response (str "Hello berok!" (:params request))))
-
-(def nuthin
-  (interceptor
-   {:name :nuthin
-    :enter (fn [ctx]
-             (assoc ctx :response
-                    (ring-resp/response (:request ctx))))}))
-
-(def sumthin
-  (interceptor
-   {:name :sumthin
-    :enter (fn [ctx] (assoc ctx :response (ring-resp/response ctx)))}))
-
-(def csrf-hack
-  (interceptor
-   {:name ::csrf-hack
-    :enter (fn [ctx]
-             (let [context (-> ctx
-                               (assoc-in [:request :headers "x-csrf-token"] "anjing" )
-                               (assoc-in [:request :session "__anti-forgery-token"] "anjing" ))]
-               context))}))
-
-(defroutes routes
-  ;; Defines "/" and "/about" routes with their associated :get handlers.
-  ;; The interceptors defined after the verb map (e.g., {:get home-page}
-  ;; apply to / and its children (/about).
-  [[["/" ^:interceptors [(csrf/anti-forgery)
-                         (body-params/body-params)
-                         (middlewares/params)]
-     {:get home-page}
-     ;^:interceptors [(body-params/body-params) bootstrap/html-body]
-     ["/about" {:get about-page}]
-     ["/req" {:any nuthin}]
-     ["/ctx" {:any sumthin}]]]])
-
 ;; Consumed by pedes.server/create-server
 ;; See bootstrap/default-interceptors for additional options you can configure
 (def service {:env :prod
@@ -64,7 +21,6 @@
               ;; dev-mode. If you do, many other keys for configuring
               ;; default interceptors will be ignored.
               ;; ::bootstrap/interceptors []
-              ::bootstrap/routes routes
 
               ;; Uncomment next line to enable CORS support, add
               ;; string(s) specifying scheme, host and port for
@@ -82,39 +38,35 @@
               ::bootstrap/enable-session {}
               ::bootstrap/type :jetty
               ;;::bootstrap/host "localhost"
-              ::bootstrap/port 8080})
+              ::bootstrap/port 3000})
 
-(def sagat
-  (::bootstrap/service-fn (bootstrap/create-servlet service)))
+(defonce runnable-service
+  (-> service ;; start with production configuration
+      (merge {:env :dev
+              ;; do not block thread that starts web server
+              ::bootstrap/join? false
+              ;; Routes can be a function that resolve routes,
+              ;;  we can use this to set the routes to be reloadable
+              ;; all origins are allowed in dev mode
+              ::bootstrap/allowed-origins {:creds true :allowed-origins (constantly true)}})
+      ;; Wire up interceptor chains
 
-(def b
-  "{\"json\": \"input\"}"
-  #_"{:ninja \"tiger\"}")
+      ;; bootstrap/default-interceptors
+      ;; bootstrap/dev-interceptors
+      ;; bootstrap/create-server
+      ))
 
-(def h
-  {"Content-Type" "application/json"
-   "Accept" "application/json"})
+(defrecord ServiceMap [service-data routes]
+  component/Lifecycle
+  (start [this]
+         (let [service-map (assoc service-data
+                                  ::bootstrap/routes
+                                  (:routes routes))]
+           (assoc this :service-data service-map)))
+  (stop [this]
+        (update-in this [:service-map ::bootstrap/routes] pop)))
 
-(defn tiger
+(defn make-service-map
+  ""
   []
-  (:body (ptest/response-for sagat :post "/req" :body b :headers h)))
-
-(defn macaca
-  []
-  (let [kue (cookie-store)
-        r1 (cl/get "http://localhost:8080/req"
-                   {:throw-exceptions false
-                    :cookie-store kue})
-        token-regex (str "name=\"__anti-forgery-token\" "
-                           "type=\"hidden\" value=\"(.+?)\"")
-        token (-> token-regex
-                  re-pattern
-                  (re-find (:body r1))
-                  second)
-        r2 (cl/post
-              "http://localhost:8080/req"
-              {:headers {"X-CSRF-Token" token}
-               :form-params {:foo "bar"}
-               :throw-exceptions false
-               :cookie-store kue})]
-    r2))
+  (map->ServiceMap {:service-data runnable-service}))
